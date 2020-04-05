@@ -1,0 +1,39 @@
+name: "Create DNS Record"
+description: "Creates a new CloudFlare DNS record"
+author: "Kriasoft"
+
+inputs:
+  type:
+    description: 'DNS record type, e.g. "A", "CNAME", etc.'
+    required: true
+  name:
+    description: 'DNS record name, e.g. "{PR_NUMBER}.example.com"'
+    required: true
+  content:
+    description: 'DNS record content, e.g. "127.0.0.1"'
+  ttl:
+    description: "Time to live for DNS record. Value of 1 is 'automatic'"
+    default: 1
+  proxied:
+    description: "Whether the record is receiving the performance and security benefits of Cloudflare"
+    default: true
+  token:
+    description: "CloudFlare API token"
+    default: ${{ secrets.CLOUDFLARE_TOKEN }}
+    required: true
+  zone:
+    default: "CloudFlare zone"
+    default: ${{ secrets.CLOUDFLARE_ZONE }}
+    required: true
+
+outputs:
+  id:
+  name:
+
+runs:
+  using: "node12"
+  main: "main.js"
+
+branding:
+  icon: "at-sign"
+  color: "orange"

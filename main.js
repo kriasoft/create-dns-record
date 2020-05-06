@@ -10,7 +10,7 @@ const event = require(process.env.GITHUB_EVENT_PATH);
 const pr = event.pull_request ? event.pull_request.number : "?";
 
 // https://api.cloudflare.com/#dns-records-for-a-zone-create-dns-record
-const result = cp.spawnSync("curl", [
+const curlResult = cp.spawnSync("curl", [
   ...["--request", "POST"],
   ...["--header", `Authorization: Bearer ${process.env.INPUT_TOKEN}`],
   ...["--header", "Content-Type: application/json"],
@@ -27,11 +27,11 @@ const result = cp.spawnSync("curl", [
   `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records`,
 ]);
 
-if (result.status !== 0) {
-  process.exit(result.status);
+if (curlResult.status !== 0) {
+  process.exit(curlResult.status);
 }
 
-const { success, result, errors } = JSON.parse(result.stdout.toString());
+const { success, result, errors } = JSON.parse(curlResult.stdout.toString());
 
 if (!success) {
   console.dir(errors[0]);

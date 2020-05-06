@@ -22,7 +22,7 @@ inputs:
     default: ${{ secrets.CLOUDFLARE_TOKEN }}
     required: true
   zone:
-    default: "CloudFlare zone"
+    description: "CloudFlare zone"
     default: ${{ secrets.CLOUDFLARE_ZONE }}
     required: true
 

@@ -9,6 +9,11 @@ const cp = require("child_process");
 const event = require(process.env.GITHUB_EVENT_PATH);
 const pr = event.pull_request ? event.pull_request.number : "?";
 
+let shouldBeProxied = true;
+if (['false', '0', 'no'].includes(process.env.INPUT_PROXIED)) {
+  shouldBeProxied = false;
+}
+
 // https://api.cloudflare.com/#dns-records-for-a-zone-create-dns-record
 const curlResult = cp.spawnSync("curl", [
   ...["--request", "POST"],
@@ -22,7 +27,7 @@ const curlResult = cp.spawnSync("curl", [
       .replace(/\{head_ref\}/gi, process.env.GITHUB_HEAD_REF),
     content: process.env.INPUT_CONTENT,
     ttl: Number(process.env.INPUT_TTL),
-    proxied: Boolean(process.env.INPUT_PROXIED),
+    proxied: shouldBeProxied,
   }),
   `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records`,
 ]);

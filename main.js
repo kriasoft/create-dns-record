@@ -9,8 +9,13 @@ const cp = require("child_process");
 const event = require(process.env.GITHUB_EVENT_PATH);
 const pr = event.pull_request ? event.pull_request.number : "?";
 
+let shouldBeProxied = true;
+if (['false', '0', 'no'].includes(process.env.INPUT_PROXIED)) {
+  shouldBeProxied = false;
+}
+
 // https://api.cloudflare.com/#dns-records-for-a-zone-create-dns-record
-const result = cp.spawnSync("curl", [
+const curlResult = cp.spawnSync("curl", [
   ...["--request", "POST"],
   ...["--header", `Authorization: Bearer ${process.env.INPUT_TOKEN}`],
   ...["--header", "Content-Type: application/json"],
@@ -22,16 +27,16 @@ const result = cp.spawnSync("curl", [
       .replace(/\{head_ref\}/gi, process.env.GITHUB_HEAD_REF),
     content: process.env.INPUT_CONTENT,
     ttl: Number(process.env.INPUT_TTL),
-    proxied: Boolean(process.env.INPUT_PROXIED),
+    proxied: shouldBeProxied,
   }),
   `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records`,
 ]);
 
-if (result.status !== 0) {
-  process.exit(result.status);
+if (curlResult.status !== 0) {
+  process.exit(curlResult.status);
 }
 
-const { success, result, errors } = JSON.parse(result.stdout.toString());
+const { success, result, errors } = JSON.parse(curlResult.stdout.toString());
 
 if (!success) {
   console.dir(errors[0]);
